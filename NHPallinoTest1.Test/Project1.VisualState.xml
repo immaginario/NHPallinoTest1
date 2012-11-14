@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VisualState xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ShowCheckBoxes="false">
+  <TopNode>[0-1000]C:\Users\Giorgio\Documents\Visual Studio 2012\Projects\Tests\NHPallinoTest1\NHPallinoTest1.Test\Project1.nunit</TopNode>
+  <SelectedNode>[0-1002]NHPallinoTest1.Test.MappingTests.CanExportSchemaForMSSql</SelectedNode>
+  <ExcludeCategories>false</ExcludeCategories>
+  <Nodes>
+    <Node UniqueName="[0-1000]C:\Users\Giorgio\Documents\Visual Studio 2012\Projects\Tests\NHPallinoTest1\NHPallinoTest1.Test\Project1.nunit" Expanded="true" />
+    <Node UniqueName="[0-1003]C:\Users\Giorgio\Documents\Visual Studio 2012\Projects\Tests\NHPallinoTest1\NHPallinoTest1.Test\bin\Debug\NHPallinoTest1.Test.dll" Expanded="true" />
+    <Node UniqueName="[0-1004]NHPallinoTest1" Expanded="true" />
+    <Node UniqueName="[0-1005]NHPallinoTest1.Test" Expanded="true" />
+    <Node UniqueName="[0-1001]NHPallinoTest1.Test.MappingTests" Expanded="true" />
+  </Nodes>
+</VisualState>
