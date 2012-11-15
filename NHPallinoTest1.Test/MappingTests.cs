@@ -12,6 +12,7 @@ using NHibernate;
 using NHibernate.Tool.hbm2ddl;
 using NHPallinoTest1.Model;
 using NUnit.Framework;
+using SharpTestsEx;
 
 
 namespace NHPallinoTest1.Test
@@ -43,6 +44,53 @@ namespace NHPallinoTest1.Test
                     .CheckProperty(c => c.Id, 1)
                     .CheckProperty(c => c.Name, "Negozio di Padova")
                     .VerifyTheMappings();
+            }
+        }
+
+        [Test]
+        public void CanAddNewOrder()
+        {
+            var shopName = "Negozio di Pallino";
+            using (ISession session = NHHelper.GetInMemorySession())
+            {
+                using (ITransaction trans = session.BeginTransaction())
+                {
+                    var shop = new Shop { Name =  shopName};
+                    var customer = new Customer { 
+                                        Name = "Mario",
+                                        Surname = "Rossi",
+                                        Address = "via Roma, 2"                                        
+                                    };
+                    
+                    try
+                    {
+                        session.Save(customer);
+                        session.Save(shop);
+                        Console.Write(shop.Id);
+                        trans.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        trans.Rollback();
+                        throw;
+                    }
+                }
+                string expectedName = string.Empty;
+                using (ITransaction trans = session.BeginTransaction())
+                {
+                    try
+                    {
+                        var shopOnDb = session.Get<Shop>(1);
+                        expectedName = shopOnDb.Name;
+                        trans.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        trans.Rollback();
+                        throw;
+                    }
+                }
+                shopName.Should().Be.EqualTo(expectedName);
             }
         }
     }
