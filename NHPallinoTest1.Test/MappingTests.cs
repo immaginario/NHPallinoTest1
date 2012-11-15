@@ -55,18 +55,41 @@ namespace NHPallinoTest1.Test
             {
                 using (ITransaction trans = session.BeginTransaction())
                 {
-                    var shop = new Shop { Name =  shopName};
-                    var customer = new Customer { 
+                    var shop = new Shop { Name = shopName };
+
+                    var customer = new Customer
+                                    {
                                         Name = "Mario",
                                         Surname = "Rossi",
-                                        Address = "via Roma, 2"                                        
+                                        Address = "via Roma, 2"
                                     };
-                    
                     try
                     {
                         session.Save(customer);
                         session.Save(shop);
-                        Console.Write(shop.Id);
+                        trans.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        trans.Rollback();
+                        throw;
+                    }
+                }
+                using (ITransaction trans = session.BeginTransaction())
+                {
+                    var shop = session.Get<Shop>(1);
+
+                    var customer = session.Get<Customer>(1);
+
+                    var order = new ShopOrder();
+                    order.AddItem("Fiesta", 2.30M, 1);
+                    order.AddItem("Delice", 2.30M, 1);
+
+                    shop.AddShopOrder(order, customer);
+
+                    try
+                    {
+                        session.Save(shop);
                         trans.Commit();
                     }
                     catch (Exception)

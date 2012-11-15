@@ -19,5 +19,20 @@ namespace NHPallinoTest1.Model
             this.Created = DateTime.Now;
             this.ShopOrderItems = new List<ShopOrderItem>();
         }
+
+        public virtual void AddItem(ShopOrderItem shopOrderItem)
+        {
+            this.ShopOrderItems.Add(shopOrderItem);
+            shopOrderItem.ShopOrder = this;
+        }
+
+        public virtual void AddItem(string productName, decimal price, int quantity)
+        {
+            if (price < 0)
+                throw new ArgumentException("Price can't be negative");
+            var shopOrderItem = new ShopOrderItem { ProductName = productName, Price = price, Quantity = quantity };
+
+            this.AddItem(shopOrderItem);
+        }
     }
 }
