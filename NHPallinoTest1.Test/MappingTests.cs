@@ -27,9 +27,21 @@ namespace NHPallinoTest1.Test
                 new PersistenceSpecification<Customer>(session, new CustomEqualityComparer())
                     .CheckProperty(c => c.Id, 1)
                     .CheckProperty(c => c.Address, "via Roma, 1")
-                    .CheckProperty(c => c.Created, new DateTime(2012,1,2))
+                    .CheckProperty(c => c.Created, new DateTime(2012, 1, 2))
                     .CheckProperty(c => c.Name, "Mario")
                     .CheckProperty(c => c.Surname, "Rossi")
+                    .VerifyTheMappings();
+            }
+        }
+
+        [Test]
+        public void CanCorrectlyMapShop()
+        {
+            using (ISession session = NHHelper.GetInMemorySession())
+            {
+                new PersistenceSpecification<Shop>(session, new CustomEqualityComparer())
+                    .CheckProperty(c => c.Id, 1)
+                    .CheckProperty(c => c.Name, "Negozio di Padova")
                     .VerifyTheMappings();
             }
         }

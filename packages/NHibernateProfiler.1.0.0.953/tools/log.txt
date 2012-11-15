@@ -1,0 +1,22 @@
+2012-11-15 11:01:19,165 [1] INFO  Rhino.Licensing.AbstractLicenseValidator [(null)] - License expiration date is 05/19/2013 07:20:09
+2012-11-15 11:02:27,789 [1] ERROR Rhino.Licensing.AbstractLicenseValidator [(null)] - Could not re-lease subscription license
+System.TimeoutException: The request channel timed out attempting to send after 00:01:00. Increase the timeout value passed to the call to Request or increase the SendTimeout value on the Binding. The time allotted to this operation may have been a portion of a longer timeout. ---> System.TimeoutException: The HTTP request to 'http://uberprof.com/Subscriptions.svc' has exceeded the allotted timeout of 00:00:00. The time allotted to this operation may have been a portion of a longer timeout.
+   at System.ServiceModel.Channels.HttpChannelUtilities.SetRequestTimeout(HttpWebRequest request, TimeSpan timeout)
+   at System.ServiceModel.Channels.HttpChannelFactory.HttpRequestChannel.HttpChannelRequest.SendRequest(Message message, TimeSpan timeout)
+   at System.ServiceModel.Channels.RequestChannel.Request(Message message, TimeSpan timeout)
+   --- End of inner exception stack trace ---
+
+Server stack trace: 
+   at System.ServiceModel.Channels.RequestChannel.Request(Message message, TimeSpan timeout)
+   at System.ServiceModel.Dispatcher.RequestChannelBinder.Request(Message message, TimeSpan timeout)
+   at System.ServiceModel.Channels.ServiceChannel.Call(String action, Boolean oneway, ProxyOperationRuntime operation, Object[] ins, Object[] outs, TimeSpan timeout)
+   at System.ServiceModel.Channels.ServiceChannelProxy.InvokeService(IMethodCallMessage methodCall, ProxyOperationRuntime operation)
+   at System.ServiceModel.Channels.ServiceChannelProxy.Invoke(IMessage message)
+
+Exception rethrown at [0]: 
+   at System.Runtime.Remoting.Proxies.RealProxy.HandleReturnMessage(IMessage reqMsg, IMessage retMsg)
+   at System.Runtime.Remoting.Proxies.RealProxy.PrivateInvoke(MessageData& msgData, Int32 type)
+   at Rhino.Licensing.ISubscriptionLicensingService.LeaseLicense(String previousLicense)
+   at Rhino.Licensing.AbstractLicenseValidator.TryGettingNewLeaseSubscription()
+2012-11-15 11:02:27,808 [1] INFO  Rhino.Licensing.AbstractLicenseValidator [(null)] - License expiration date is 05/19/2013 07:20:09
+2012-11-15 11:02:28,093 [1] DEBUG Rhino.Licensing.AbstractLicenseValidator [(null)] - License accepted for NHibernate Profiler
