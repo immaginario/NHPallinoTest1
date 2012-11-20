@@ -9,7 +9,9 @@ using FluentNHibernate.Cfg;
 using FluentNHibernate.Cfg.Db;
 using FluentNHibernate.Testing;
 using NHibernate;
+using NHibernate.Cfg;
 using NHibernate.Tool.hbm2ddl;
+using NHibernate.Transform;
 using NHPallinoTest1.Model;
 using NUnit.Framework;
 using SharpTestsEx;
@@ -20,6 +22,11 @@ namespace NHPallinoTest1.Test
     [TestFixture]
     public class MappingTests
     {
+
+        private ISessionFactory sessFactory;
+        private Configuration config;
+
+
         [Test]
         public void CanCorrectlyMapCustomer()
         {
@@ -47,73 +54,100 @@ namespace NHPallinoTest1.Test
             }
         }
 
+        private void AddDummyData(ISession session)
+        {
+            var shopName = "Negozio di Pallino";
+            using (ITransaction trans = session.BeginTransaction())
+            {
+                var shop = new Shop { Name = shopName };
+
+                var customer = new Customer
+                {
+                    Name = "Mario",
+                    Surname = "Rossi",
+                    Address = "via Roma, 2"
+                };
+                try
+                {
+                    session.Save(customer);
+                    session.Save(shop);
+                    trans.Commit();
+                }
+                catch (Exception)
+                {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+            using (ITransaction trans = session.BeginTransaction())
+            {
+                var shop = session.Get<Shop>(1);
+
+                var customer = session.Get<Customer>(1);
+
+                var order = new ShopOrder();
+                order.AddItem("Fiesta", 2.30M, 1);
+                order.AddItem("Delice", 2.30M, 1);
+
+                shop.AddShopOrder(order, customer);
+
+                try
+                {
+                    session.Save(shop);
+                    trans.Commit();
+                }
+                catch (Exception)
+                {
+                    trans.Rollback();
+                    throw;
+                }
+            }
+        }
+
         [Test]
         public void CanAddNewOrder()
         {
             var shopName = "Negozio di Pallino";
             using (ISession session = NHHelper.GetInMemorySession())
             {
-                using (ITransaction trans = session.BeginTransaction())
-                {
-                    var shop = new Shop { Name = shopName };
+                AddDummyData(session);
 
-                    var customer = new Customer
-                                    {
-                                        Name = "Mario",
-                                        Surname = "Rossi",
-                                        Address = "via Roma, 2"
-                                    };
-                    try
-                    {
-                        session.Save(customer);
-                        session.Save(shop);
-                        trans.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
-                }
-                using (ITransaction trans = session.BeginTransaction())
-                {
-                    var shop = session.Get<Shop>(1);
-
-                    var customer = session.Get<Customer>(1);
-
-                    var order = new ShopOrder();
-                    order.AddItem("Fiesta", 2.30M, 1);
-                    order.AddItem("Delice", 2.30M, 1);
-
-                    shop.AddShopOrder(order, customer);
-
-                    try
-                    {
-                        session.Save(shop);
-                        trans.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
-                }
                 string expectedName = string.Empty;
+                var shopOnDb = session.Get<Shop>(1);
+                expectedName = shopOnDb.Name;
+
+                shopName.Should().Be.EqualTo(expectedName);
+            }
+        }
+
+        [Test]
+        public void CanQueryTodaysOrders()
+        {
+            var config = NHHelper.CreateConfiguration();
+            var factory = config.BuildSessionFactory();
+            HibernatingRhinos.Profiler.Appender.NHibernate.NHibernateProfiler.Initialize();
+            using (ISession session = factory.OpenSession())
+            {
+                AddDummyData(session);
+            }
+            using (ISession session = factory.OpenSession())
+            {
                 using (ITransaction trans = session.BeginTransaction())
                 {
-                    try
-                    {
-                        var shopOnDb = session.Get<Shop>(1);
-                        expectedName = shopOnDb.Name;
-                        trans.Commit();
-                    }
-                    catch (Exception)
-                    {
-                        trans.Rollback();
-                        throw;
-                    }
+                    var todaysOrdersQuery = session.QueryOver<ShopOrder>()
+                        .Where(x => x.Created >= DateTime.Today)
+                        .And(x => x.Created < DateTime.Today.AddDays(1))
+                        .JoinQueryOver<ShopOrderItem>(x => x.ShopOrderItems)
+                        .TransformUsing(new DistinctRootEntityResultTransformer())
+                        .Take(1000);
+                    var todaysOrders = todaysOrdersQuery.List<ShopOrder>();
+
+                    todaysOrders.Should().Have.Count.EqualTo(1);
+                    var todayOrder = todaysOrders[0];
+
+                    todayOrder.ShopOrderItems.Should().Have.Count.EqualTo(2);
+                    trans.Commit();
                 }
-                shopName.Should().Be.EqualTo(expectedName);
             }
         }
     }
